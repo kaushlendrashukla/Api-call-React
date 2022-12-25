@@ -1,40 +1,59 @@
-import React, { useState } from 'react';
+import React, {  useEffect,useState } from "react";
 
-import MoviesList from './components/MoviesList';
-import './App.css';
+import MoviesList from "./components/MoviesList";
+import "./App.css";
 
 function App() {
-
-  const[movies, setMovies] = useState([])
-  const[isLoading, setIsLoading] = useState(false)
-
-  async function fetchMoviesHandler() {
-    setIsLoading(true)
-  const response =  await fetch("https://swapi.dev/api/films")
-  const data = await response.json()   
-      const transformedMovies = data.results.map(movieData => {
+  const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+ 
+  const fetchMovieHandler=(async()=> {
+    try {      
+    const response = await fetch("https://swapi.dev/api/film");
+    
+      if (!response.ok) {      
+        throw new Error("Something wents wrong......Retrying");
+      }
+    
+    
+    const data = await response.json();
+    setIsLoading(true);
+    setError(null);
+        const transformedMovies = data.results.map((movieData) => {
         return {
           id: movieData.episode_id,
           title: movieData.title,
           openingText: movieData.opening_crawl,
-          releaseDate: movieData.release_date
-        }
-      })
-     setMovies(transformedMovies);
+          releaseDate: movieData.release_date,
+        };
+      });
+      setMovies(transformedMovies);
+    } catch (error) {
+       
+      setError(error.message);
+      console.log(error.message)
+    
+    }
+    setIsLoading(false);
+  })
+  useEffect(()=>{    
+      fetchMovieHandler()   
+   },[fetchMovieHandler])
    
-
-    setIsLoading(false)
-  }
-
   return (
     <React.Fragment>
       <section>
-        <button onClick={fetchMoviesHandler}>Fetch Movies</button>
+        {!error && <button onClick={fetchMovieHandler}>Fetch Movies</button>}
+        {error && <button >Cancel</button>}
       </section>
       <section>
-       {!isLoading && <MoviesList movies={movies} />}
-       {!isLoading && movies.length === 0 && <h2>sorry!!!! No movies found <button onClick={fetchMoviesHandler}>try again</button></h2>}
-       {isLoading && <h2>Loading.......</h2>}
+        {!isLoading && movies.length > 0 && <MoviesList movies={movies} />}
+        {!isLoading && movies.length === 0 && !error && (
+          <p>There is no movie found..</p>
+        )}
+        {!isLoading && error && <p>{error}</p>}
+        {isLoading && <p>loading....</p>}
       </section>
     </React.Fragment>
   );
