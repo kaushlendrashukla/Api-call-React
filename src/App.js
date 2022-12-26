@@ -21,16 +21,16 @@ function App() {
       const data = await response.json();
       const loadedMovies = []
 
-      for (const value in data) {
+      for (const key in data) {
         loadedMovies.push({
-          id: value,
-          title: data[value].title,
-          openingText: data[value].openingText,
-          releaseDate: data[value].releaseDate
+          id: key,
+          title: data[key].title,
+          openingText: data[key].openingText,
+          releaseDate: data[key].releaseDate
         })
       }
 
-      
+      console.log(loadedMovies)
       setMovies(loadedMovies);
     } catch (error) {
       setError(error.message);
@@ -74,11 +74,12 @@ function App() {
         <AddMovie onAddMovie={addMovieHandler} />
       </section>
       <section>
-        <button onClick={fetchMoviesHandler}>Fetch Movies</button>
+        <button onClick={fetchMoviesHandler} >Fetch Movies</button>
       </section>
-      <section>{content}</section>
+      <section onLoad={fetchMoviesHandler}>{content}</section>
     </React.Fragment>
   );
 }
 
 export default App;
+// onLoad={fetchMoviesHandler}
